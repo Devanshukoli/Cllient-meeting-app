@@ -30,4 +30,23 @@ export class BookingLinkService {
     const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     return `${baseUrl}/book/${token}`;
   }
+
+  /**
+   * Fetches a booking link by its token.
+   */
+  static async getBookingLinkByToken(token: string) {
+    return prisma.bookingLink.findUnique({
+      where: { token },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            timezone: true,
+          },
+        },
+      },
+    });
+  }
 }
