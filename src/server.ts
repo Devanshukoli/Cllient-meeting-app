@@ -10,12 +10,14 @@ import { authTypeDefs } from './modules/auth/auth.schema.js';
 import { authResolvers } from './modules/auth/auth.resolvers.js';
 import { availabilityTypeDefs } from './modules/availability/availability.schema.js';
 import { availabilityResolvers } from './modules/availability/availability.resolvers.js';
+import { bookingLinkTypeDefs } from './modules/bookingLink/bookingLink.schema.js';
+import { bookingLinkResolvers } from './modules/bookingLink/bookingLink.resolvers.js';
 
 const httpServer = http.createServer(app);
 
 const server = new ApolloServer<Context>({
-  typeDefs: [authTypeDefs, availabilityTypeDefs],
-  resolvers: [authResolvers, availabilityResolvers],
+  typeDefs: [authTypeDefs, availabilityTypeDefs, bookingLinkTypeDefs],
+  resolvers: [authResolvers, availabilityResolvers, bookingLinkResolvers],
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
