@@ -1,46 +1,68 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { Container, Typography, Box, Button } from '@mui/material'
+import { Container, Typography, Box, Button, CircularProgress } from '@mui/material'
 import LoginPage from './pages/Auth/LoginPage'
 import RegisterPage from './pages/Auth/RegisterPage'
+import DashboardPage from './pages/Dashboard/DashboardPage'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+}
+
 function Home() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { isAuthenticated } = useAuth();
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" />;
+  }
 
   return (
-    <Box sx={{ my: 4, textAlign: 'center' }}>
+    <Box sx={{ my: 8, textAlign: 'center' }}>
       <Typography variant="h2" component="h1" gutterBottom color="primary" fontWeight="bold">
         Client Meeting App
       </Typography>
-      <Typography variant="h5" component="h2" gutterBottom color="text.secondary">
-        Welcome to your premium scheduling experience
+      <Typography variant="h5" component="h2" gutterBottom color="text.secondary" sx={{ mb: 4 }}>
+        Your premium scheduling experience starts here
       </Typography>
       
-      {isAuthenticated ? (
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            Hello, {user?.name || user?.email}!
-          </Typography>
-          <Button variant="outlined" color="primary" onClick={logout} sx={{ mt: 2 }}>
-            Log Out
-          </Button>
-        </Box>
-      ) : (
-        <Box sx={{ mt: 4 }}>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            size="large" 
-            href="/login"
-            sx={{ mt: 2, px: 4, py: 1.5, borderRadius: 2, fontWeight: 'bold' }}
-          >
-            Get Started
-          </Button>
-        </Box>
-      )}
+      <Box sx={{ mt: 4 }}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          size="large" 
+          component={RouterLink}
+          to="/login"
+          sx={{ mr: 2, px: 4, py: 1.5, borderRadius: 2, fontWeight: 'bold' }}
+        >
+          Login
+        </Button>
+        <Button 
+          variant="outlined" 
+          color="primary" 
+          size="large" 
+          component={RouterLink}
+          to="/register"
+          sx={{ px: 4, py: 1.5, borderRadius: 2, fontWeight: 'bold' }}
+        >
+          Sign Up
+        </Button>
+      </Box>
     </Box>
   )
 }
+
+// Helper to use RouterLink with MUI Button
+import { Link as RouterLink } from 'react-router-dom';
 
 function App() {
   return (
@@ -51,6 +73,14 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <PrivateRoute>
+                  <DashboardPage />
+                </PrivateRoute>
+              } 
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Container>
