@@ -8,12 +8,14 @@ import { BaseContext } from '@apollo/server';
 
 import { authTypeDefs } from './modules/auth/auth.schema.js';
 import { authResolvers } from './modules/auth/auth.resolvers.js';
+import { availabilityTypeDefs } from './modules/availability/availability.schema.js';
+import { availabilityResolvers } from './modules/availability/availability.resolvers.js';
 
 const httpServer = http.createServer(app);
 
 const server = new ApolloServer<Context>({
-  typeDefs: [authTypeDefs],
-  resolvers: [authResolvers],
+  typeDefs: [authTypeDefs, availabilityTypeDefs],
+  resolvers: [authResolvers, availabilityResolvers],
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
