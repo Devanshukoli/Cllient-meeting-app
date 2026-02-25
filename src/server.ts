@@ -3,27 +3,17 @@ import { expressMiddleware } from '@as-integrations/express5';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import http from 'http';
 import app from './app.js';
-import { createContext } from './graphql/context.js';
+import { createContext, Context } from './graphql/context.js';
 import { BaseContext } from '@apollo/server';
+
+import { authTypeDefs } from './modules/auth/auth.schema.js';
+import { authResolvers } from './modules/auth/auth.resolvers.js';
 
 const httpServer = http.createServer(app);
 
-// Minimal schema for initialization
-const typeDefs = `#graphql
-  type Query {
-    hello: String
-  }
-`;
-
-const resolvers = {
-  Query: {
-    hello: () => 'Hello world!',
-  },
-};
-
-const server = new ApolloServer<BaseContext>({
-  typeDefs,
-  resolvers,
+const server = new ApolloServer<Context>({
+  typeDefs: [authTypeDefs],
+  resolvers: [authResolvers],
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 

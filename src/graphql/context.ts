@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { prisma } from '../lib/database.js';
 import { redis } from '../lib/redis.js';
-import jwt from 'jsonwebtoken';
 import { Request } from 'express';
+import { AuthService } from '../services/auth.service.js';
 
 export interface Context {
   prisma: PrismaClient;
@@ -14,18 +14,18 @@ export interface Context {
 }
 
 export const createContext = async ({ req }: { req: Request }): Promise<Context> => {
-  const token = req.headers.authorization?.split(' ')[1];
+  const authHeader = req.headers.authorization;
   let user = undefined;
 
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as any;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    const decoded = AuthService.verifyToken(token) as any;
+
+    if (decoded) {
       user = {
         id: decoded.userId,
         email: decoded.email,
       };
-    } catch (error) {
-      console.warn('Invalid token');
     }
   }
 
