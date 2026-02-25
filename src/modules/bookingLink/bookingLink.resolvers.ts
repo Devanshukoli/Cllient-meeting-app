@@ -102,5 +102,50 @@ export const bookingLinkResolvers = {
         });
       }
     },
+
+    bookSlot: async (
+      _: any,
+      {
+        token,
+        date,
+        startTime,
+        endTime,
+        visitorName,
+        visitorEmail,
+      }: {
+        token: string;
+        date: string;
+        startTime: string;
+        endTime: string;
+        visitorName: string;
+        visitorEmail: string;
+      }
+    ) => {
+      try {
+        const bookingDate = new Date(date);
+        bookingDate.setUTCHours(0, 0, 0, 0);
+
+        const booking = await BookingService.bookSlot({
+          token,
+          date: bookingDate,
+          startTime,
+          endTime,
+          visitorName,
+          visitorEmail,
+        });
+
+        return {
+          ...booking,
+          date: booking.date.toISOString(),
+          createdAt: booking.createdAt.toISOString(),
+        };
+      } catch (error: any) {
+        if (error instanceof GraphQLError) throw error;
+
+        throw new GraphQLError('Failed to book slot', {
+          extensions: { code: 'INTERNAL_SERVER_ERROR', message: error.message },
+        });
+      }
+    },
   },
 };

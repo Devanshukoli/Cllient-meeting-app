@@ -19,6 +19,17 @@ export const bookingLinkTypeDefs = `#graphql
     createdAt: String!
   }
 
+  type Booking {
+    id: String!
+    bookingLinkId: String!
+    date: String!
+    startTime: String!
+    endTime: String!
+    visitorName: String!
+    visitorEmail: String!
+    createdAt: String!
+  }
+
   type User {
     id: String!
     name: String
@@ -34,5 +45,13 @@ export const bookingLinkTypeDefs = `#graphql
 
   extend type Mutation {
     generateBookingLink: BookingLink!
+    bookSlot(
+      token: String!
+      date: String!
+      startTime: String!
+      endTime: String!
+      visitorName: String!
+      visitorEmail: String!
+    ): Booking!
   }
 `;
