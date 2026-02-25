@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  timezone  String   @default("UTC")
+  createdAt DateTime @default(now())
+
+  availability Availability[]
+  bookingLinks BookingLink[]
+}
+
+model Availability {
+  id        String   @id @default(uuid())
+  userId    String
+  date      DateTime
+  startTime String
+  endTime   String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model BookingLink {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  createdAt DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id])
+  bookings Booking[]
+}
+
+model Booking {
+  id            String   @id @default(uuid())
+  bookingLinkId String
+  date          DateTime
+  startTime     String
+  endTime       String
+  visitorName   String
+  visitorEmail  String
+  createdAt     DateTime @default(now())
+
+  bookingLink BookingLink @relation(fields: [bookingLinkId], references: [id])
+
+  @@index([bookingLinkId, date])
+}
