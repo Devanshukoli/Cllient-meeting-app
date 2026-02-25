@@ -11,7 +11,6 @@ import {
   Divider,
   Alert,
   Snackbar,
-  TextField,
   IconButton,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -118,7 +117,7 @@ const DashboardPage: React.FC = () => {
 
       <Grid container spacing={4}>
         {/* Availability Form */}
-        <Grid item xs={12} md={5}>
+        <Grid size={{ xs: 12, md: 5 }}>
           <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
             <Typography variant="h6" gutterBottom fontWeight="bold">
               Add Availability
@@ -204,7 +203,7 @@ const DashboardPage: React.FC = () => {
         </Grid>
 
         {/* Availability List */}
-        <Grid item xs={12} md={7}>
+        <Grid size={{ xs: 12, md: 7 }}>
           <Paper elevation={3} sx={{ p: 3, borderRadius: 2, minHeight: 400 }}>
             <Typography variant="h6" gutterBottom fontWeight="bold">
               Your Availabilities

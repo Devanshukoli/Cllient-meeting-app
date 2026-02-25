@@ -3,6 +3,7 @@ import { Container, Typography, Box, Button, CircularProgress } from '@mui/mater
 import LoginPage from './pages/Auth/LoginPage'
 import RegisterPage from './pages/Auth/RegisterPage'
 import DashboardPage from './pages/Dashboard/DashboardPage'
+import PublicBookingPage from './pages/PublicBooking/PublicBookingPage'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -73,6 +74,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/book/:token" element={<PublicBookingPage />} />
             <Route 
               path="/dashboard" 
               element={
