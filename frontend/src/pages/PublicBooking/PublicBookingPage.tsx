@@ -4,7 +4,6 @@ import {
   Typography,
   Paper,
   Grid,
-  Chip,
   Button,
   Dialog,
   DialogTitle,
@@ -15,10 +14,12 @@ import {
   CircularProgress,
   Container,
 } from '@mui/material';
-import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 import { useParams } from 'react-router-dom';
 import { Dayjs } from 'dayjs';
 import { useGetBookingLink, useGetAvailableDates, useGetTimeSlots, useBookSlotMutation } from '../../hooks/useBooking';
+import { BookingCalendar } from '../../components/booking/BookingCalendar';
+import { TimeSlotPicker } from '../../components/booking/TimeSlotPicker';
+import { formatDate, formatFullDate } from '../../utils/date';
 
 const PublicBookingPage: React.FC = () => {
   const { token } = useParams<{ token: string }>();
@@ -34,7 +35,7 @@ const PublicBookingPage: React.FC = () => {
   const { data: datesData } = useGetAvailableDates(token || '');
   const { data: slotsData, isLoading: isSlotsLoading, refetch: refetchSlots } = useGetTimeSlots(
     token || '',
-    selectedDate ? selectedDate.format('YYYY-MM-DD') : ''
+    selectedDate ? formatDate(selectedDate) : ''
   );
 
   const bookMutation = useBookSlotMutation();
@@ -55,7 +56,7 @@ const PublicBookingPage: React.FC = () => {
     try {
       await bookMutation.mutateAsync({
         token,
-        date: selectedDate.format('YYYY-MM-DD'),
+        date: formatDate(selectedDate),
         startTime: selectedSlot.start,
         endTime: selectedSlot.end,
         visitorName,
@@ -98,7 +99,7 @@ const PublicBookingPage: React.FC = () => {
           </Typography>
           <Typography variant="body1" sx={{ mb: 3 }}>
             Your meeting with <strong>{host.name}</strong> on{' '}
-            <strong>{selectedDate?.format('MMMM D, YYYY')}</strong> at{' '}
+            <strong>{selectedDate ? formatFullDate(selectedDate) : ''}</strong> at{' '}
             <strong>{selectedSlot?.start}</strong> has been scheduled.
           </Typography>
           <Button variant="contained" onClick={() => setBookingSuccess(false)}>
@@ -122,60 +123,20 @@ const PublicBookingPage: React.FC = () => {
 
       <Grid container spacing={4} justifyContent="center">
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-            <StaticDatePicker
-              displayStaticWrapperAs="desktop"
-              value={selectedDate}
-              onChange={handleDateChange}
-              shouldDisableDate={(date) => !availableDates.includes(date.format('YYYY-MM-DD'))}
-              slotProps={{
-                actionBar: { sx: { display: 'none' } }
-              }}
-            />
-          </Paper>
+          <BookingCalendar
+            selectedDate={selectedDate}
+            onDateChange={handleDateChange}
+            availableDates={availableDates}
+          />
         </Grid>
 
         <Grid size={{ xs: 12, md: 4 }}>
-          <Typography variant="h6" gutterBottom fontWeight="bold">
-            {selectedDate ? selectedDate.format('MMMM D, YYYY') : 'Select a date'}
-          </Typography>
-          
-          <Box sx={{ mt: 2 }}>
-            {isSlotsLoading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                <CircularProgress size={24} />
-              </Box>
-            ) : selectedDate ? (
-              timeSlots.length > 0 ? (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
-                  {timeSlots.map((slot: any, index: number) => (
-                    <Chip
-                      key={index}
-                      label={slot.start}
-                      onClick={() => handleSlotClick(slot)}
-                      color="primary"
-                      variant="outlined"
-                      sx={{ 
-                        fontSize: '1rem', 
-                        py: 2.5, 
-                        px: 1, 
-                        borderRadius: 1,
-                        '&:hover': { bgcolor: 'primary.main', color: 'white' }
-                      }}
-                    />
-                  ))}
-                </Box>
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  No slots available for this day.
-                </Typography>
-              )
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                Please pick a date from the calendar to see available slots.
-              </Typography>
-            )}
-          </Box>
+          <TimeSlotPicker
+            selectedDate={selectedDate}
+            timeSlots={timeSlots}
+            onSlotClick={handleSlotClick}
+            isLoading={isSlotsLoading}
+          />
         </Grid>
       </Grid>
 
@@ -184,7 +145,7 @@ const PublicBookingPage: React.FC = () => {
         <DialogTitle fontWeight="bold">Confirm Booking</DialogTitle>
         <DialogContent>
           <Typography variant="body2" sx={{ mb: 3 }}>
-            Scheduling for <strong>{selectedDate?.format('MMMM D, YYYY')}</strong> at <strong>{selectedSlot?.start}</strong>
+            Scheduling for <strong>{selectedDate ? formatFullDate(selectedDate) : ''}</strong> at <strong>{selectedSlot?.start}</strong>
           </Typography>
           
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
