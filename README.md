@@ -53,4 +53,4 @@ We welcome contributions! Please see our **[CONTRIBUTING.md](./CONTRIBUTING.md)*
 
 ## 📄 License
 
-This project is licensed under the [ISC](./LICENSE) License.
+This project is licensed under the [MIT](./LICENSE) License.
