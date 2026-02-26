@@ -1,36 +1,22 @@
-import { Redis } from 'ioredis';
+import { createClient } from 'redis';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-const isCloudRedis = redisUrl.includes('redislabs.com') || redisUrl.includes('redis.cloud') || redisUrl.includes('upstash.io');
-
-export const redis = new Redis(redisUrl, {
-  maxRetriesPerRequest: null,
-  connectTimeout: 10000,
-  ...(isCloudRedis && { tls: {} }), // Essential for cloud redis
-  retryStrategy(times) {
-    if (times > 5) {
-      console.error('❌ Redis: Max retries reached, stopping reconnection');
-      return null;
-    }
-    const delay = Math.min(times * 500, 3000);
-    console.log(`🔄 Redis: Reconnecting in ${delay}ms (attempt ${times})`);
-    return delay;
-  },
+export const redis = createClient({
+  username: 'default',
+  password: process.env.REDIS_PASSWORD!,
+  socket: {
+    host: process.env.REDIS_HOST!,
+    port: Number(process.env.REDIS_PORT),
+    tls: false,
+  }
 });
 
-redis.on('connect', () => {
-  console.log('✅ Redis connected');
-});
+redis.on('error', (err) => console.error('❌ Redis error:', err.message));
+redis.on('connect', () => console.log('✅ Redis connected'));
+redis.on('ready', () => console.log('✅ Redis ready'));
 
-redis.on('ready', () => {
-  console.log('✅ Redis ready');
-});
-
-redis.on('error', (error: Error) => {
-  console.error('❌ Redis error:', error.message);
-});
+await redis.connect();
 
 export default redis;
