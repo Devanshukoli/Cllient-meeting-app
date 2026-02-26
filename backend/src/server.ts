@@ -35,7 +35,29 @@ async function startServer() {
 
   await new Promise<void>((resolve) => httpServer.listen({ port: Number(PORT) }, resolve));
   console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
+
+  // Graceful shutdown handler
+  const shutdown = async () => {
+    console.log('Stopping server...');
+    await server.stop();
+    const { prisma } = await import('./lib/database.js');
+    const { redis } = await import('./lib/redis.js');
+    await prisma.$disconnect();
+    redis.disconnect();
+    console.log('All connections closed.');
+    process.exit(0);
+  };
+
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 }
+
+process.on('uncaughtException', (err: any) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${process.env.PORT} is already in use. Kill the process and retry.`);
+    process.exit(1);
+  }
+});
 
 startServer().catch((error) => {
   console.error('Failed to start server:', error);

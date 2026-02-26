@@ -15,7 +15,7 @@ export interface Context {
 
 export const createContext = async ({ req }: { req: Request }): Promise<Context> => {
   const authHeader = req.headers.authorization;
-  let user = undefined;
+  let user: Context['user'] | undefined = undefined;
 
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1];
